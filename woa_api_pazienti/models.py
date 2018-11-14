@@ -38,15 +38,7 @@ class AnamnesiRemota(models.Model):
         db_table = 'anamnesi_remota'
 
 
-class Consulto(models.Model):
-    id = models.IntegerField(db_column='ID', primary_key=True, blank=True, null=False)  # Field name made lowercase.
-    id_paziente = models.IntegerField(db_column='ID_paziente', blank=True, null=False)  # Field name made lowercase.
-    data = models.DateTimeField(blank=True, null=True)
-    problema_iniziale = models.TextField(blank=True, null=True)  # This field type is a guess.
 
-    class Meta:
-        managed = False
-        db_table = 'consulto'
 
 
 class Esame(models.Model):
@@ -106,6 +98,17 @@ class Paziente(models.Model):
     class Meta:
         managed = False
         db_table = 'paziente'
+
+class Consulto(models.Model):
+    id = models.IntegerField(db_column='ID', primary_key=True, blank=True, null=False)  # Field name made lowercase.
+    id_paziente = models.IntegerField(db_column='ID_paziente', blank=True, null=False)  # Field name made lowercase.
+    data = models.DateTimeField(blank=True, null=True)
+    problema_iniziale = models.TextField(blank=True, null=True)  # This field type is a guess.
+    paziente = models.ForeignKey(Paziente, on_delete=models.CASCADE, db_column="id_paziente")
+
+    class Meta:
+        managed = False
+        db_table = 'consulto'
 
 
 class SinceTable(models.Model):
