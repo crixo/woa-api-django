@@ -55,6 +55,19 @@ class PazientiPagedView(generics.GenericAPIView):
     #ordering_fields = ('username', 'email')
     ordering = ('cognome',)
 
+    def get_queryset(self):
+        """
+        Optionally restricts the returned purchases to a given user,
+        by filtering against a `username` query parameter in the URL.
+        """
+        queryset = Paziente.objects.all()
+        my_filter = self.request.query_params.get('filter', None)
+        logger.debug(my_filter)
+        if my_filter is not None:
+            queryset = queryset.filter(cognome__startswith=my_filter)
+        return queryset
+
+
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 

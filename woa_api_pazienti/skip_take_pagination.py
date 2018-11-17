@@ -147,6 +147,12 @@ class SkipTakePagination(BasePagination):
     max_limit = None
     template = 'rest_framework/pagination/numbers.html'
 
+    def append_querystring(self, link):
+        query_string = self.request.GET.urlencode()
+        if query_string:
+            link += '?' + query_string
+        return link
+
     def paginate_queryset(self, queryset, request, view=None):
         self.count = self.get_count(queryset)
         self.limit = self.get_limit(request)
@@ -208,9 +214,12 @@ class SkipTakePagination(BasePagination):
         offset = self.offset + self.limit
         #return replace_query_param(url, self.offset_query_param, offset)
         segments = self.request.path.split('/')
+        _logger.debug(segments)
         segments[-2] = str(offset)
         segments[-1] = str(self.limit)
-        return self.request.build_absolute_uri('/'.join(segments))
+        _logger.debug(self.request.GET.urlencode())
+        link = self.request.build_absolute_uri('/'.join(segments))
+        return self.append_querystring(link)
 
     def get_previous_link(self):
         if self.offset <= 0:
@@ -219,15 +228,19 @@ class SkipTakePagination(BasePagination):
         url = self.request.build_absolute_uri()
         url = replace_query_param(url, self.limit_query_param, self.limit)
 
-        if self.offset - self.limit <= 0:
-            return remove_query_param(url, self.offset_query_param)
+        # if self.offset - self.limit <= 0:
+        #     return remove_query_param(url, self.offset_query_param)
 
         offset = self.offset - self.limit
         #return replace_query_param(url, self.offset_query_param, offset)
         segments = self.request.path.split('/')
+        #_logger.debug('get_previous_link'+segments)
         segments[-2] = str(offset)
         segments[-1] = str(self.limit)
-        return self.request.build_absolute_uri('/'.join(segments))
+        _logger.debug(self.request.GET.urlencode())
+        link = self.request.build_absolute_uri('/'.join(segments))
+        _logger.debug('get_previous_link'+link)
+        return self.append_querystring(link)
 
     def get_html_context(self):
         base_url = self.request.build_absolute_uri()
@@ -260,14 +273,16 @@ class SkipTakePagination(BasePagination):
                 segments = self.request.path.split('/')
                 segments[-2] = str(0)
                 segments[-1] = str(self.limit)
-                return self.request.build_absolute_uri('/'.join(segments))
+                link = self.request.build_absolute_uri('/'.join(segments))
+                return self.append_querystring(link)
             else:
                 offset = self.offset + ((page_number - current) * self.limit)
                 #return replace_query_param(base_url, self.offset_query_param, offset)
                 segments = self.request.path.split('/')
                 segments[-2] = str(offset)
                 segments[-1] = str(self.limit)
-                return self.request.build_absolute_uri('/'.join(segments))
+                link = self.request.build_absolute_uri('/'.join(segments))
+                return self.append_querystring(link)
 
         page_numbers = _get_displayed_page_numbers(current, final)
         page_links = _get_page_links(page_numbers, current, page_number_to_url)
