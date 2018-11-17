@@ -13,3 +13,8 @@ django-admin.py startapp woa_api_pazienti
 ## migration and superuser
 python manage.py migrate
 python manage.py createsuperuser --email cristiano.deg@gmail.com --username cristiano
+
+## pipenv
+https://pipenv.readthedocs.io/en/latest/basics/
+### activate environment
+pipenv shell 
